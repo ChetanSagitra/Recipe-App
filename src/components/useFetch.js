@@ -20,7 +20,16 @@ export const useFetch = (url) => {
         if (!res.ok) throw new Error(`Error: ${res.status}`);
 
         const json = await res.json();
-        setData(json);
+        
+        // Filter out meals with missing critical data
+        if (json?.meals && Array.isArray(json.meals)) {
+          const completeMeals = json.meals.filter(
+            (meal) => meal && meal.idMeal && meal.strMealThumb && meal.strMeal
+          );
+          setData({ ...json, meals: completeMeals });
+        } else {
+          setData(json);
+        }
       } catch (error) {
         setError(error.message);
       } finally {
